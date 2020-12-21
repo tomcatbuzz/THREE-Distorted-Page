@@ -7,7 +7,7 @@ import vertex from './shader/vertex.glsl';
 import * as dat from 'dat.gui';
 import gsap from 'gsap';
 
-import img from '../img/img1.jpeg';
+import img from '../img/img3.jpg';
 
 export default class Sketch {
   constructor(options) {
@@ -35,11 +35,11 @@ export default class Sketch {
       1000
     );
 
-    let frustumSize = 1;
-    let aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.OrthographicCamera(
-      frustumSize / -2, frustumSize / 2, frustumSize / 2, frustumSize / -2, -1000, 1000
-    );
+    // let frustumSize = 1;
+    // let aspect = window.innerWidth / window.innerHeight;
+    // this.camera = new THREE.OrthographicCamera(
+    //   frustumSize / -2, frustumSize / 2, frustumSize / 2, frustumSize / -2, -1000, 1000
+    // );
     this.camera.position.set(0, 0, 2);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.time = 0;
@@ -111,6 +111,7 @@ export default class Sketch {
 
   mouseEvents() {
     document.addEventListener('mousedown', () => {
+      this.material.uniforms.direction.value = 0;
       gsap.to(this.material.uniforms.progress, {
         value: 1,
         duration: 0.5
@@ -118,6 +119,7 @@ export default class Sketch {
     })
 
     document.addEventListener('mouseup', () => {
+      this.material.uniforms.direction.value = 1;
       gsap.to(this.material.uniforms.progress, {
         value: 0,
         duration: 0.5
@@ -135,13 +137,14 @@ export default class Sketch {
       side: THREE.DoubleSide,
       uniforms: {
         time: { value: 0 },
+        direction: { value: 0 },
         progress: { value: 0 },
         texture1: { value: new THREE.TextureLoader().load(img) },
         // t1: { value: new THREE.TextureLoader().load(texture1) },
         // t2: { value: new THREE.TextureLoader().load(blog) },
         resolution: { value: new THREE.Vector4() },
       },
-      wireframe: true,
+      // wireframe: true,
       // transparent: true,
       vertexShader: vertex,
       fragmentShader: fragment

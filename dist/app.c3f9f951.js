@@ -37895,9 +37895,9 @@ module.exports = function( THREE ) {
 };
 
 },{}],"js/shader/fragment.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform sampler2D texture1;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\tgl_FragColor = vec4(progress,0.,0.,1.);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform sampler2D texture1;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\t// gl_FragColor = vec4(progress,0.,0.,1.);\n}";
 },{}],"js/shader/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\n// float PI = 3.141592653589793238;\nvoid main() {\n\n  vec3 pos = position;\n\n  // pos.z = 0.1*sin(pos.x*10.);\n  float distance = length(uv - vec2(0.5));\n  float maxdist = length(vec2(0.5));\n\n  float normalizedDistance = distance/maxdist;\n\n  float stickTo = normalizedDistance;\n\n  float superProgress = min(2.*progress, 2.*(1. - progress));\n\n  pos.z +=stickTo*superProgress;\n\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform float direction;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\n// float PI = 3.141592653589793238;\nvoid main() {\n\n  vec3 pos = position;\n\n  // pos.z = 0.1*sin(pos.x*10.);\n  float distance = length(uv - vec2(0.5));\n  float maxdist = length(vec2(0.5));\n\n  float normalizedDistance = distance/maxdist;\n\n  float stickTo = normalizedDistance;\n  float stickOut = -normalizedDistance;\n\n  float stickEffect = mix(stickTo,stickOut,direction);\n\n  float superProgress = min(2.*progress, 2.*(1. - progress));\n\n  float zOffset = 2.;\n\n  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.),direction);\n\n  pos.z += zOffset*(stickEffect*superProgress - zProgress);\n\n  pos.z += progress*sin(distance*10. + 2.*time)*0.1;\n\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\n}";
 },{}],"node_modules/dat.gui/build/dat.gui.module.js":[function(require,module,exports) {
 "use strict";
 
@@ -46220,8 +46220,8 @@ TweenMaxWithCSS = gsapWithCSS.core.Tween;
 
 exports.TweenMax = TweenMaxWithCSS;
 exports.default = exports.gsap = gsapWithCSS;
-},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"img/img1.jpeg":[function(require,module,exports) {
-module.exports = "/img1.97f9e60a.jpeg";
+},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"img/img3.jpg":[function(require,module,exports) {
+module.exports = "/img3.e34bda8d.jpg";
 },{}],"js/app.js":[function(require,module,exports) {
 "use strict";
 
@@ -46240,7 +46240,7 @@ var dat = _interopRequireWildcard(require("dat.gui"));
 
 var _gsap = _interopRequireDefault(require("gsap"));
 
-var _img = _interopRequireDefault(require("../img/img1.jpeg"));
+var _img = _interopRequireDefault(require("../img/img3.jpg"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -46276,10 +46276,12 @@ var Sketch = /*#__PURE__*/function () {
     // this.container = document.getElementById("container");
 
     this.container.appendChild(this.renderer.domElement);
-    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000);
-    var frustumSize = 1;
-    var aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.OrthographicCamera(frustumSize / -2, frustumSize / 2, frustumSize / 2, frustumSize / -2, -1000, 1000);
+    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000); // let frustumSize = 1;
+    // let aspect = window.innerWidth / window.innerHeight;
+    // this.camera = new THREE.OrthographicCamera(
+    //   frustumSize / -2, frustumSize / 2, frustumSize / 2, frustumSize / -2, -1000, 1000
+    // );
+
     this.camera.position.set(0, 0, 2);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.time = 0;
@@ -46349,12 +46351,16 @@ var Sketch = /*#__PURE__*/function () {
       var _this = this;
 
       document.addEventListener('mousedown', function () {
+        _this.material.uniforms.direction.value = 0;
+
         _gsap.default.to(_this.material.uniforms.progress, {
           value: 1,
           duration: 0.5
         });
       });
       document.addEventListener('mouseup', function () {
+        _this.material.uniforms.direction.value = 1;
+
         _gsap.default.to(_this.material.uniforms.progress, {
           value: 0,
           duration: 0.5
@@ -46374,6 +46380,9 @@ var Sketch = /*#__PURE__*/function () {
           time: {
             value: 0
           },
+          direction: {
+            value: 0
+          },
           progress: {
             value: 0
           },
@@ -46386,7 +46395,7 @@ var Sketch = /*#__PURE__*/function () {
             value: new THREE.Vector4()
           }
         },
-        wireframe: true,
+        // wireframe: true,
         // transparent: true,
         vertexShader: _vertex.default,
         fragmentShader: _fragment.default
@@ -46428,7 +46437,7 @@ exports.default = Sketch;
 new Sketch({
   dom: document.getElementById('container')
 });
-},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img1.jpeg":"img/img1.jpeg"}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img3.jpg":"img/img3.jpg"}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -46456,7 +46465,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52264" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55590" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
