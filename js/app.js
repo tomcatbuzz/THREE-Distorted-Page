@@ -6,8 +6,12 @@ import fragment from './shader/fragment.glsl';
 import vertex from './shader/vertex.glsl';
 import * as dat from 'dat.gui';
 import gsap from 'gsap';
+import img from '../img/img4.jpg';
 
-import img from '../img/img3.jpg';
+const createInputEvents = require('simple-input-events');
+
+// create input events with a target element
+const event = createInputEvents(window);
 
 export default class Sketch {
   constructor(options) {
@@ -45,6 +49,7 @@ export default class Sketch {
     this.time = 0;
 
     this.isPlaying = true;
+    this.mouse = new THREE.Vector2();
 
     this.addObjects();
     this.resize();
@@ -52,6 +57,7 @@ export default class Sketch {
     this.setupResize();
     // this.settings();
     this.mouseEvents();
+    this.mouseMoveEvent();
   }
 
   // settings() {
@@ -62,6 +68,13 @@ export default class Sketch {
   //   this.gui = new dat.GUI();
   //   this.gui.add(this.settings, 'progress', 0, 1, 0.01);
   // }
+
+  mouseMoveEvent() {
+    event.on('move', ({ position }) => {
+      // mousemove / touchmove
+      console.log(position); // [ x, y ]
+    });
+  }
 
   setupResize() {
     window.addEventListener('resize', this.resize.bind(this));
@@ -138,6 +151,7 @@ export default class Sketch {
       uniforms: {
         time: { value: 0 },
         direction: { value: 0 },
+        mouse: { value: new THREE.Vector2(0.,0.) },
         progress: { value: 0 },
         texture1: { value: new THREE.TextureLoader().load(img) },
         // t1: { value: new THREE.TextureLoader().load(texture1) },
@@ -168,7 +182,7 @@ export default class Sketch {
 
   render() {
     if (!this.isPlaying) return;
-    this.tme += 0.05;
+    this.time += 0.05;
     this.material.uniforms.time.value = this.time;
     // this.material.uniforms.progress.value = this.settings.progress;
     // this.material.uniforms.texture.value = this.texture;

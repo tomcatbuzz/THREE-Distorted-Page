@@ -37895,9 +37895,9 @@ module.exports = function( THREE ) {
 };
 
 },{}],"js/shader/fragment.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform sampler2D texture1;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\t// gl_FragColor = vec4(progress,0.,0.,1.);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform sampler2D texture1;\nuniform vec2 mouse;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tfloat mouseDist = length(vUv - mouse);\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\tgl_FragColor = vec4(mouseDist,0.,0.,1.);\n}";
 },{}],"js/shader/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform float direction;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\n// float PI = 3.141592653589793238;\nvoid main() {\n\n  vec3 pos = position;\n\n  // pos.z = 0.1*sin(pos.x*10.);\n  float distance = length(uv - vec2(0.5));\n  float maxdist = length(vec2(0.5));\n\n  float normalizedDistance = distance/maxdist;\n\n  float stickTo = normalizedDistance;\n  float stickOut = -normalizedDistance;\n\n  float stickEffect = mix(stickTo,stickOut,direction);\n\n  float superProgress = min(2.*progress, 2.*(1. - progress));\n\n  float zOffset = 2.;\n\n  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.),direction);\n\n  pos.z += zOffset*(stickEffect*superProgress - zProgress);\n\n  pos.z += progress*sin(distance*10. + 2.*time)*0.1;\n\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform float direction;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\n// float PI = 3.141592653589793238;\nvoid main() {\n\n  vec3 pos = position;\n\n  // pos.z = 0.1*sin(pos.x*10.);\n  float distance = length(uv - vec2(0.5));\n  float maxdist = length(vec2(0.5));\n\n  float normalizedDistance = distance/maxdist;\n\n  float stickTo = normalizedDistance;\n  float stickOut = -normalizedDistance;\n\n  float stickEffect = mix(stickTo,stickOut,direction);\n\n  float superProgress = min(2.*progress, 2.*(1. - progress));\n\n  float zOffset = 2.;\n\n  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.), direction);\n\n  pos.z +=zOffset*(stickEffect*superProgress - zProgress);\n\n  pos.z += progress*sin(distance*10. + 2.*time)*0.1;\n\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\n}";
 },{}],"node_modules/dat.gui/build/dat.gui.module.js":[function(require,module,exports) {
 "use strict";
 
@@ -46220,9 +46220,697 @@ TweenMaxWithCSS = gsapWithCSS.core.Tween;
 
 exports.TweenMax = TweenMaxWithCSS;
 exports.default = exports.gsap = gsapWithCSS;
-},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"img/img3.jpg":[function(require,module,exports) {
-module.exports = "/img3.e34bda8d.jpg";
-},{}],"js/app.js":[function(require,module,exports) {
+},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"img/img4.jpg":[function(require,module,exports) {
+module.exports = "/img4.a35ee5e5.jpg";
+},{}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/events/events.js":[function(require,module,exports) {
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+'use strict';
+
+var R = typeof Reflect === 'object' ? Reflect : null;
+var ReflectApply = R && typeof R.apply === 'function' ? R.apply : function ReflectApply(target, receiver, args) {
+  return Function.prototype.apply.call(target, receiver, args);
+};
+var ReflectOwnKeys;
+
+if (R && typeof R.ownKeys === 'function') {
+  ReflectOwnKeys = R.ownKeys;
+} else if (Object.getOwnPropertySymbols) {
+  ReflectOwnKeys = function ReflectOwnKeys(target) {
+    return Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target));
+  };
+} else {
+  ReflectOwnKeys = function ReflectOwnKeys(target) {
+    return Object.getOwnPropertyNames(target);
+  };
+}
+
+function ProcessEmitWarning(warning) {
+  if (console && console.warn) console.warn(warning);
+}
+
+var NumberIsNaN = Number.isNaN || function NumberIsNaN(value) {
+  return value !== value;
+};
+
+function EventEmitter() {
+  EventEmitter.init.call(this);
+}
+
+module.exports = EventEmitter;
+module.exports.once = once; // Backwards-compat with node 0.10.x
+
+EventEmitter.EventEmitter = EventEmitter;
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._eventsCount = 0;
+EventEmitter.prototype._maxListeners = undefined; // By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+
+var defaultMaxListeners = 10;
+
+function checkListener(listener) {
+  if (typeof listener !== 'function') {
+    throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
+  }
+}
+
+Object.defineProperty(EventEmitter, 'defaultMaxListeners', {
+  enumerable: true,
+  get: function () {
+    return defaultMaxListeners;
+  },
+  set: function (arg) {
+    if (typeof arg !== 'number' || arg < 0 || NumberIsNaN(arg)) {
+      throw new RangeError('The value of "defaultMaxListeners" is out of range. It must be a non-negative number. Received ' + arg + '.');
+    }
+
+    defaultMaxListeners = arg;
+  }
+});
+
+EventEmitter.init = function () {
+  if (this._events === undefined || this._events === Object.getPrototypeOf(this)._events) {
+    this._events = Object.create(null);
+    this._eventsCount = 0;
+  }
+
+  this._maxListeners = this._maxListeners || undefined;
+}; // Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+
+
+EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
+  if (typeof n !== 'number' || n < 0 || NumberIsNaN(n)) {
+    throw new RangeError('The value of "n" is out of range. It must be a non-negative number. Received ' + n + '.');
+  }
+
+  this._maxListeners = n;
+  return this;
+};
+
+function _getMaxListeners(that) {
+  if (that._maxListeners === undefined) return EventEmitter.defaultMaxListeners;
+  return that._maxListeners;
+}
+
+EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
+  return _getMaxListeners(this);
+};
+
+EventEmitter.prototype.emit = function emit(type) {
+  var args = [];
+
+  for (var i = 1; i < arguments.length; i++) args.push(arguments[i]);
+
+  var doError = type === 'error';
+  var events = this._events;
+  if (events !== undefined) doError = doError && events.error === undefined;else if (!doError) return false; // If there is no 'error' event listener then throw.
+
+  if (doError) {
+    var er;
+    if (args.length > 0) er = args[0];
+
+    if (er instanceof Error) {
+      // Note: The comments on the `throw` lines are intentional, they show
+      // up in Node's output if this results in an unhandled exception.
+      throw er; // Unhandled 'error' event
+    } // At least give some kind of context to the user
+
+
+    var err = new Error('Unhandled error.' + (er ? ' (' + er.message + ')' : ''));
+    err.context = er;
+    throw err; // Unhandled 'error' event
+  }
+
+  var handler = events[type];
+  if (handler === undefined) return false;
+
+  if (typeof handler === 'function') {
+    ReflectApply(handler, this, args);
+  } else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+
+    for (var i = 0; i < len; ++i) ReflectApply(listeners[i], this, args);
+  }
+
+  return true;
+};
+
+function _addListener(target, type, listener, prepend) {
+  var m;
+  var events;
+  var existing;
+  checkListener(listener);
+  events = target._events;
+
+  if (events === undefined) {
+    events = target._events = Object.create(null);
+    target._eventsCount = 0;
+  } else {
+    // To avoid recursion in the case that type === "newListener"! Before
+    // adding it to the listeners, first emit "newListener".
+    if (events.newListener !== undefined) {
+      target.emit('newListener', type, listener.listener ? listener.listener : listener); // Re-assign `events` because a newListener handler could have caused the
+      // this._events to be assigned to a new object
+
+      events = target._events;
+    }
+
+    existing = events[type];
+  }
+
+  if (existing === undefined) {
+    // Optimize the case of one listener. Don't need the extra array object.
+    existing = events[type] = listener;
+    ++target._eventsCount;
+  } else {
+    if (typeof existing === 'function') {
+      // Adding the second element, need to change to array.
+      existing = events[type] = prepend ? [listener, existing] : [existing, listener]; // If we've already got an array, just append.
+    } else if (prepend) {
+      existing.unshift(listener);
+    } else {
+      existing.push(listener);
+    } // Check for listener leak
+
+
+    m = _getMaxListeners(target);
+
+    if (m > 0 && existing.length > m && !existing.warned) {
+      existing.warned = true; // No error code for this since it is a Warning
+      // eslint-disable-next-line no-restricted-syntax
+
+      var w = new Error('Possible EventEmitter memory leak detected. ' + existing.length + ' ' + String(type) + ' listeners ' + 'added. Use emitter.setMaxListeners() to ' + 'increase limit');
+      w.name = 'MaxListenersExceededWarning';
+      w.emitter = target;
+      w.type = type;
+      w.count = existing.length;
+      ProcessEmitWarning(w);
+    }
+  }
+
+  return target;
+}
+
+EventEmitter.prototype.addListener = function addListener(type, listener) {
+  return _addListener(this, type, listener, false);
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.prependListener = function prependListener(type, listener) {
+  return _addListener(this, type, listener, true);
+};
+
+function onceWrapper() {
+  if (!this.fired) {
+    this.target.removeListener(this.type, this.wrapFn);
+    this.fired = true;
+    if (arguments.length === 0) return this.listener.call(this.target);
+    return this.listener.apply(this.target, arguments);
+  }
+}
+
+function _onceWrap(target, type, listener) {
+  var state = {
+    fired: false,
+    wrapFn: undefined,
+    target: target,
+    type: type,
+    listener: listener
+  };
+  var wrapped = onceWrapper.bind(state);
+  wrapped.listener = listener;
+  state.wrapFn = wrapped;
+  return wrapped;
+}
+
+EventEmitter.prototype.once = function once(type, listener) {
+  checkListener(listener);
+  this.on(type, _onceWrap(this, type, listener));
+  return this;
+};
+
+EventEmitter.prototype.prependOnceListener = function prependOnceListener(type, listener) {
+  checkListener(listener);
+  this.prependListener(type, _onceWrap(this, type, listener));
+  return this;
+}; // Emits a 'removeListener' event if and only if the listener was removed.
+
+
+EventEmitter.prototype.removeListener = function removeListener(type, listener) {
+  var list, events, position, i, originalListener;
+  checkListener(listener);
+  events = this._events;
+  if (events === undefined) return this;
+  list = events[type];
+  if (list === undefined) return this;
+
+  if (list === listener || list.listener === listener) {
+    if (--this._eventsCount === 0) this._events = Object.create(null);else {
+      delete events[type];
+      if (events.removeListener) this.emit('removeListener', type, list.listener || listener);
+    }
+  } else if (typeof list !== 'function') {
+    position = -1;
+
+    for (i = list.length - 1; i >= 0; i--) {
+      if (list[i] === listener || list[i].listener === listener) {
+        originalListener = list[i].listener;
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0) return this;
+    if (position === 0) list.shift();else {
+      spliceOne(list, position);
+    }
+    if (list.length === 1) events[type] = list[0];
+    if (events.removeListener !== undefined) this.emit('removeListener', type, originalListener || listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+
+EventEmitter.prototype.removeAllListeners = function removeAllListeners(type) {
+  var listeners, events, i;
+  events = this._events;
+  if (events === undefined) return this; // not listening for removeListener, no need to emit
+
+  if (events.removeListener === undefined) {
+    if (arguments.length === 0) {
+      this._events = Object.create(null);
+      this._eventsCount = 0;
+    } else if (events[type] !== undefined) {
+      if (--this._eventsCount === 0) this._events = Object.create(null);else delete events[type];
+    }
+
+    return this;
+  } // emit removeListener for all listeners on all events
+
+
+  if (arguments.length === 0) {
+    var keys = Object.keys(events);
+    var key;
+
+    for (i = 0; i < keys.length; ++i) {
+      key = keys[i];
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+
+    this.removeAllListeners('removeListener');
+    this._events = Object.create(null);
+    this._eventsCount = 0;
+    return this;
+  }
+
+  listeners = events[type];
+
+  if (typeof listeners === 'function') {
+    this.removeListener(type, listeners);
+  } else if (listeners !== undefined) {
+    // LIFO order
+    for (i = listeners.length - 1; i >= 0; i--) {
+      this.removeListener(type, listeners[i]);
+    }
+  }
+
+  return this;
+};
+
+function _listeners(target, type, unwrap) {
+  var events = target._events;
+  if (events === undefined) return [];
+  var evlistener = events[type];
+  if (evlistener === undefined) return [];
+  if (typeof evlistener === 'function') return unwrap ? [evlistener.listener || evlistener] : [evlistener];
+  return unwrap ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
+}
+
+EventEmitter.prototype.listeners = function listeners(type) {
+  return _listeners(this, type, true);
+};
+
+EventEmitter.prototype.rawListeners = function rawListeners(type) {
+  return _listeners(this, type, false);
+};
+
+EventEmitter.listenerCount = function (emitter, type) {
+  if (typeof emitter.listenerCount === 'function') {
+    return emitter.listenerCount(type);
+  } else {
+    return listenerCount.call(emitter, type);
+  }
+};
+
+EventEmitter.prototype.listenerCount = listenerCount;
+
+function listenerCount(type) {
+  var events = this._events;
+
+  if (events !== undefined) {
+    var evlistener = events[type];
+
+    if (typeof evlistener === 'function') {
+      return 1;
+    } else if (evlistener !== undefined) {
+      return evlistener.length;
+    }
+  }
+
+  return 0;
+}
+
+EventEmitter.prototype.eventNames = function eventNames() {
+  return this._eventsCount > 0 ? ReflectOwnKeys(this._events) : [];
+};
+
+function arrayClone(arr, n) {
+  var copy = new Array(n);
+
+  for (var i = 0; i < n; ++i) copy[i] = arr[i];
+
+  return copy;
+}
+
+function spliceOne(list, index) {
+  for (; index + 1 < list.length; index++) list[index] = list[index + 1];
+
+  list.pop();
+}
+
+function unwrapListeners(arr) {
+  var ret = new Array(arr.length);
+
+  for (var i = 0; i < ret.length; ++i) {
+    ret[i] = arr[i].listener || arr[i];
+  }
+
+  return ret;
+}
+
+function once(emitter, name) {
+  return new Promise(function (resolve, reject) {
+    function eventListener() {
+      if (errorListener !== undefined) {
+        emitter.removeListener('error', errorListener);
+      }
+
+      resolve([].slice.call(arguments));
+    }
+
+    ;
+    var errorListener; // Adding an error listener is not optional because
+    // if an error is thrown on an event emitter we cannot
+    // guarantee that the actual event we are waiting will
+    // be fired. The result could be a silent way to create
+    // memory or file descriptor leaks, which is something
+    // we should avoid.
+
+    if (name !== 'error') {
+      errorListener = function errorListener(err) {
+        emitter.removeListener(name, eventListener);
+        reject(err);
+      };
+
+      emitter.once('error', errorListener);
+    }
+
+    emitter.once(name, eventListener);
+  });
+}
+},{}],"node_modules/simple-input-events/simple-input-events.js":[function(require,module,exports) {
+const { EventEmitter } = require('events');
+
+module.exports = function createInputEvents (opt) {
+  if (opt == null) opt = window;
+  if (isDOMNode(opt)) opt = { target: opt };
+
+  const {
+    target = window,
+    parent = window,
+    tapDistanceThreshold = 10,
+    tapDelay = 300,
+    preventDefault = false,
+    filtered = true,
+    passive = true
+  } = opt;
+  
+  const eventOpts = passive ? { passive: true } : undefined;
+
+  const emitter = new EventEmitter();
+
+  let initialIdentifier;
+  let dragging = false;
+  let lastTime;
+  let lastPosition;
+  let attached = false;
+
+  attach();
+
+  emitter.enable = attach;
+  emitter.disable = detach;
+
+  Object.defineProperties(emitter, {
+    target: {
+      get () { return target }
+    },
+    parent: {
+      get () { return parent }
+    }
+  });
+
+  return emitter;
+
+  function mousedown (event) {
+    // mark the drag event as having started
+    dragging = true;
+    const touch = getCurrentEvent(event);
+    const result = createEvent(event, touch, target);
+    lastPosition = result.position.slice();
+    lastTime = Date.now();
+    emitter.emit('down', result);
+  }
+
+  function mouseup (event) {
+    const wasDragging = dragging;
+    const touch = getCurrentEvent(event);
+    let valid = true;
+    if (filtered && event.changedTouches && (!touch || touch.identifier !== initialIdentifier)) {
+      // skip entirely if this touch doesn't match expected
+      valid = false;
+    }
+    if (touch && valid) {
+      const result = createEvent(event, touch, target);
+      initialIdentifier = null;
+      if (wasDragging || result.inside) {
+        // If the interaction was or is inside, emit an event
+        emitter.emit('up', result);
+      }
+      if (lastPosition != null) {
+        const nowTime = Date.now();
+        const delta = nowTime - lastTime;
+        const dist = distance(result.position, lastPosition);
+        if (delta <= tapDelay && dist < tapDistanceThreshold) {
+          emitter.emit('tap', result);
+        }
+        lastPosition = null;
+      }
+      dragging = false;
+    }
+  }
+
+  function mousemove (event) {
+    const touch = getCurrentEvent(event);
+    if (touch) {
+      // we didn't have an identifier and now we do
+      if (filtered && event.changedTouches && touch.identifier != null) {
+        const bounds = getElementBounds(target);
+        if (isInsideBounds(touch, bounds)) {
+          // ensure dragging is set to true
+          dragging = true;
+        }
+      }
+      const result = createEvent(event, touch, target);
+      if (dragging || result.inside) {
+        emitter.emit('move', result);
+      }
+    }
+  }
+
+  function attach () {
+    if (attached) return;
+    attached = true;
+    target.addEventListener('touchstart', mousedown, eventOpts);
+    parent.addEventListener('touchend', mouseup, eventOpts);
+    parent.addEventListener('touchmove', mousemove, eventOpts);
+
+    target.addEventListener('mousedown', mousedown, eventOpts);
+    parent.addEventListener('mouseup', mouseup, eventOpts);
+    parent.addEventListener('mousemove', mousemove, eventOpts);
+
+    if (preventDefault) {
+      window.addEventListener('dragstart', preventDefaultEvent, {
+        passive: false
+      });
+      document.addEventListener('touchmove', preventDefaultEvent, {
+        passive: false
+      });
+    }
+  }
+
+  function detach () {
+    if (!attached) return;
+    attached = false;
+    target.removeEventListener('touchstart', mousedown);
+    parent.removeEventListener('touchend', mouseup);
+    parent.removeEventListener('touchmove', mousemove);
+
+    target.removeEventListener('mousedown', mousedown);
+    parent.removeEventListener('mouseup', mouseup);
+    parent.removeEventListener('mousemove', mousemove);
+
+    if (preventDefault) {
+      window.removeEventListener('dragstart', preventDefaultEvent);
+      document.removeEventListener('touchmove', preventDefaultEvent);
+    }
+  }
+
+  function preventDefaultEvent (ev) {
+    ev.preventDefault();
+    return false;
+  }
+
+  function getCurrentEvent (event) {
+    if (event.changedTouches) {
+      const list = event.changedTouches;
+      if (filtered) {
+        if (initialIdentifier == null) {
+          // first time tracking, mark identifier
+          const first = getFirstTargetTouch(list) || list[0];
+          initialIdentifier = first.identifier;
+          return first;
+        } else {
+          // identifier exists, try to get it
+          return getTouch(list, initialIdentifier);
+        }
+      } else {
+        return list[0];
+      }
+    } else {
+      return event;
+    }
+  }
+
+  function getFirstTargetTouch (touches) {
+    for (let i = 0; i < touches.length; i++) {
+      const t = touches[i];
+      if (t.target === target) return t;
+    }
+    return null;
+  }
+
+  function getTouch (touches, id) {
+    for (let i = 0; i < touches.length; i++) {
+      const t = touches[i];
+      if (t.identifier === id) {
+        return t;
+      }
+    }
+    return null;
+  }
+
+  function createEvent (event, touch, target) {
+    const bounds = getElementBounds(target);
+    const position = getPosition(touch, target, bounds);
+    const uv = getNormalizedPosition(position, bounds);
+    return {
+      dragging,
+      touch,
+      inside: isInsideBounds(touch, bounds),
+      position,
+      uv,
+      event,
+      bounds
+    };
+  }
+};
+
+function distance (a, b) {
+  const x = b[0] - a[0];
+  const y = b[1] - a[1];
+  return Math.sqrt(x * x + y * y);
+}
+
+function isInsideBounds (event, bounds) {
+  const { clientX, clientY } = event;
+  return clientX >= bounds.left && clientX < bounds.right &&
+    clientY >= bounds.top && clientY < bounds.bottom;
+}
+
+function getNormalizedPosition (position, bounds) {
+  return [
+    position[0] / bounds.width,
+    position[1] / bounds.height
+  ];
+}
+
+function getPosition (event, target, bounds) {
+  const { clientX, clientY } = event;
+  const x = clientX - bounds.left;
+  const y = clientY - bounds.top;
+  return [ x, y ];
+}
+
+function getElementBounds (element) {
+  if (element === window ||
+      element === document ||
+      element === document.body) {
+    return {
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: window.innerWidth,
+      bottom: window.innerHeight,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  } else {
+    return element.getBoundingClientRect();
+  }
+}
+
+function isDOMNode (obj) {
+  if (!obj || obj == null) return false;
+  const winEl = typeof window !== 'undefined' ? window : null;
+  return obj === winEl || (typeof obj.nodeType === 'number' && typeof obj.nodeName === 'string');
+}
+
+},{"events":"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/events/events.js"}],"js/app.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46240,7 +46928,7 @@ var dat = _interopRequireWildcard(require("dat.gui"));
 
 var _gsap = _interopRequireDefault(require("gsap"));
 
-var _img = _interopRequireDefault(require("../img/img3.jpg"));
+var _img = _interopRequireDefault(require("../img/img4.jpg"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -46256,6 +46944,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var OrbitControls = require("three-orbit-controls")(THREE); // import { GLTFLoader } from 'js/GLTFLoader.js';
 
+
+var createInputEvents = require('simple-input-events'); // create input events with a target element
+
+
+var event = createInputEvents(window);
 
 var Sketch = /*#__PURE__*/function () {
   function Sketch(options) {
@@ -46286,12 +46979,14 @@ var Sketch = /*#__PURE__*/function () {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.time = 0;
     this.isPlaying = true;
+    this.mouse = new THREE.Vector2();
     this.addObjects();
     this.resize();
     this.render();
     this.setupResize(); // this.settings();
 
     this.mouseEvents();
+    this.mouseMoveEvent();
   } // settings() {
   //   let that = this;
   //   this.settings = {
@@ -46303,6 +46998,15 @@ var Sketch = /*#__PURE__*/function () {
 
 
   _createClass(Sketch, [{
+    key: "mouseMoveEvent",
+    value: function mouseMoveEvent() {
+      event.on('move', function (_ref) {
+        var position = _ref.position;
+        // mousemove / touchmove
+        console.log(position); // [ x, y ]
+      });
+    }
+  }, {
     key: "setupResize",
     value: function setupResize() {
       window.addEventListener('resize', this.resize.bind(this));
@@ -46383,6 +47087,9 @@ var Sketch = /*#__PURE__*/function () {
           direction: {
             value: 0
           },
+          mouse: {
+            value: new THREE.Vector2(0., 0.)
+          },
           progress: {
             value: 0
           },
@@ -46421,7 +47128,7 @@ var Sketch = /*#__PURE__*/function () {
     key: "render",
     value: function render() {
       if (!this.isPlaying) return;
-      this.tme += 0.05;
+      this.time += 0.05;
       this.material.uniforms.time.value = this.time; // this.material.uniforms.progress.value = this.settings.progress;
       // this.material.uniforms.texture.value = this.texture;
 
@@ -46437,7 +47144,7 @@ exports.default = Sketch;
 new Sketch({
   dom: document.getElementById('container')
 });
-},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img3.jpg":"img/img3.jpg"}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img4.jpg":"img/img4.jpg","simple-input-events":"node_modules/simple-input-events/simple-input-events.js"}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -46465,7 +47172,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55590" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51633" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

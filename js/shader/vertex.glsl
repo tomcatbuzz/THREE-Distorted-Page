@@ -24,9 +24,9 @@ void main() {
 
   float zOffset = 2.;
 
-  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.),direction);
+  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.), direction);
 
-  pos.z += zOffset*(stickEffect*superProgress - zProgress);
+  pos.z +=zOffset*(stickEffect*superProgress - zProgress);
 
   pos.z += progress*sin(distance*10. + 2.*time)*0.1;
 
