@@ -37895,7 +37895,7 @@ module.exports = function( THREE ) {
 };
 
 },{}],"js/shader/fragment.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform sampler2D texture1;\nuniform vec2 mouse;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tfloat mouseDist = length(vUv - mouse);\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\tgl_FragColor = vec4(mouseDist,0.,0.,1.);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform float speed;\nuniform sampler2D texture1;\nuniform vec2 mouse;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vPosition;\n// float PI = 3.141592653589793238;\nvoid main()\t{\n\tfloat normSpeed = clamp(speed*40.,0.,1.);\n\tfloat mouseDist = length(vUv - mouse);\n\n\tfloat c = smoothstep(0.2,0.,mouseDist);\n\tvec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);\n\tvec4 color = texture2D(texture1,newUV);\n\n\tfloat r = texture2D(texture1,newUV + 0.1*0.5*c*normSpeed).r;\n\tfloat g = texture2D(texture1,newUV + 0.1*0.3*c*normSpeed).g;\n\tfloat b = texture2D(texture1,newUV + 0.1*0.1*c*normSpeed).b;\n\tgl_FragColor = vec4(vUv,0.0,1.);\n\tgl_FragColor = color;\n\tgl_FragColor = vec4(normSpeed*mouseDist,0.,0.,1.);\n\tgl_FragColor = vec4(r,g,b,1.);\n}";
 },{}],"js/shader/vertex.glsl":[function(require,module,exports) {
 module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float progress;\nuniform float direction;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\n// float PI = 3.141592653589793238;\nvoid main() {\n\n  vec3 pos = position;\n\n  // pos.z = 0.1*sin(pos.x*10.);\n  float distance = length(uv - vec2(0.5));\n  float maxdist = length(vec2(0.5));\n\n  float normalizedDistance = distance/maxdist;\n\n  float stickTo = normalizedDistance;\n  float stickOut = -normalizedDistance;\n\n  float stickEffect = mix(stickTo,stickOut,direction);\n\n  float superProgress = min(2.*progress, 2.*(1. - progress));\n\n  float zOffset = 2.;\n\n  float zProgress = mix(clamp(2.*progress,0.,1.),clamp(1. - 2.*(1. - progress),0.,1.), direction);\n\n  pos.z +=zOffset*(stickEffect*superProgress - zProgress);\n\n  pos.z += progress*sin(distance*10. + 2.*time)*0.1;\n\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\n}";
 },{}],"node_modules/dat.gui/build/dat.gui.module.js":[function(require,module,exports) {
@@ -46222,7 +46222,7 @@ exports.TweenMax = TweenMaxWithCSS;
 exports.default = exports.gsap = gsapWithCSS;
 },{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"img/img4.jpg":[function(require,module,exports) {
 module.exports = "/img4.a35ee5e5.jpg";
-},{}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/events/events.js":[function(require,module,exports) {
+},{}],"../../../../usr/lib/node_modules/parcel-bundler/node_modules/events/events.js":[function(require,module,exports) {
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -46910,7 +46910,7 @@ function isDOMNode (obj) {
   return obj === winEl || (typeof obj.nodeType === 'number' && typeof obj.nodeName === 'string');
 }
 
-},{"events":"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/events/events.js"}],"js/app.js":[function(require,module,exports) {
+},{"events":"../../../../usr/lib/node_modules/parcel-bundler/node_modules/events/events.js"}],"js/app.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46980,6 +46980,9 @@ var Sketch = /*#__PURE__*/function () {
     this.time = 0;
     this.isPlaying = true;
     this.mouse = new THREE.Vector2();
+    this.prevMouse = new THREE.Vector2();
+    this.speed = 0;
+    this.targetSpeed = 0;
     this.addObjects();
     this.resize();
     this.render();
@@ -47000,11 +47003,23 @@ var Sketch = /*#__PURE__*/function () {
   _createClass(Sketch, [{
     key: "mouseMoveEvent",
     value: function mouseMoveEvent() {
+      var _this = this;
+
       event.on('move', function (_ref) {
         var position = _ref.position;
-        // mousemove / touchmove
-        console.log(position); // [ x, y ]
+        _this.mouse.x = position[0] / _this.width;
+        _this.mouse.y = 1 - position[1] / _this.height;
+        _this.material.uniforms.mouse.value = _this.mouse;
       });
+    }
+  }, {
+    key: "getSpeed",
+    value: function getSpeed() {
+      this.speed = Math.sqrt(Math.pow(this.prevMouse.x - this.mouse.x, 2) + Math.pow(this.prevMouse.y = this.mouse.y, 2));
+      this.targetSpeed += 0.1 * (this.speed - this.targetSpeed); // console.log(this.speed);
+
+      this.prevMouse.x = this.mouse.x;
+      this.prevMouse.y = this.mouse.y;
     }
   }, {
     key: "setupResize",
@@ -47052,20 +47067,20 @@ var Sketch = /*#__PURE__*/function () {
   }, {
     key: "mouseEvents",
     value: function mouseEvents() {
-      var _this = this;
+      var _this2 = this;
 
       document.addEventListener('mousedown', function () {
-        _this.material.uniforms.direction.value = 0;
+        _this2.material.uniforms.direction.value = 0;
 
-        _gsap.default.to(_this.material.uniforms.progress, {
+        _gsap.default.to(_this2.material.uniforms.progress, {
           value: 1,
           duration: 0.5
         });
       });
       document.addEventListener('mouseup', function () {
-        _this.material.uniforms.direction.value = 1;
+        _this2.material.uniforms.direction.value = 1;
 
-        _gsap.default.to(_this.material.uniforms.progress, {
+        _gsap.default.to(_this2.material.uniforms.progress, {
           value: 0,
           duration: 0.5
         });
@@ -47085,6 +47100,9 @@ var Sketch = /*#__PURE__*/function () {
             value: 0
           },
           direction: {
+            value: 0
+          },
+          speed: {
             value: 0
           },
           mouse: {
@@ -47129,6 +47147,8 @@ var Sketch = /*#__PURE__*/function () {
     value: function render() {
       if (!this.isPlaying) return;
       this.time += 0.05;
+      this.getSpeed();
+      this.material.uniforms.speed.value = this.targetSpeed;
       this.material.uniforms.time.value = this.time; // this.material.uniforms.progress.value = this.settings.progress;
       // this.material.uniforms.texture.value = this.texture;
 
@@ -47144,7 +47164,7 @@ exports.default = Sketch;
 new Sketch({
   dom: document.getElementById('container')
 });
-},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img4.jpg":"img/img4.jpg","simple-input-events":"node_modules/simple-input-events/simple-input-events.js"}],"../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three-orbit-controls":"node_modules/three-orbit-controls/index.js","./shader/fragment.glsl":"js/shader/fragment.glsl","./shader/vertex.glsl":"js/shader/vertex.glsl","dat.gui":"node_modules/dat.gui/build/dat.gui.module.js","gsap":"node_modules/gsap/index.js","../img/img4.jpg":"img/img4.jpg","simple-input-events":"node_modules/simple-input-events/simple-input-events.js"}],"../../../../usr/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -47172,7 +47192,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51633" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39843" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -47348,5 +47368,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../Users/Tony/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/app.js"], null)
+},{}]},{},["../../../../usr/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/app.js"], null)
 //# sourceMappingURL=/app.c3f9f951.js.map

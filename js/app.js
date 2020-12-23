@@ -50,6 +50,9 @@ export default class Sketch {
 
     this.isPlaying = true;
     this.mouse = new THREE.Vector2();
+    this.prevMouse = new THREE.Vector2();
+    this.speed = 0;
+    this.targetSpeed = 0;
 
     this.addObjects();
     this.resize();
@@ -71,9 +74,23 @@ export default class Sketch {
 
   mouseMoveEvent() {
     event.on('move', ({ position }) => {
-      // mousemove / touchmove
-      console.log(position); // [ x, y ]
+      this.mouse.x = position[0]/this.width;
+      this.mouse.y = 1 - position[1]/this.height;
+      this.material.uniforms.mouse.value = this.mouse;
     });
+  }
+
+  getSpeed() {
+    this.speed = Math.sqrt(
+      (this.prevMouse.x - this.mouse.x)**2 +
+      (this.prevMouse.y = this.mouse.y)**2
+    )
+
+    this.targetSpeed += 0.1*(this.speed - this.targetSpeed);
+    // console.log(this.speed);
+    this.prevMouse.x = this.mouse.x;
+    this.prevMouse.y = this.mouse.y;
+
   }
 
   setupResize() {
@@ -151,6 +168,7 @@ export default class Sketch {
       uniforms: {
         time: { value: 0 },
         direction: { value: 0 },
+        speed: { value: 0 },
         mouse: { value: new THREE.Vector2(0.,0.) },
         progress: { value: 0 },
         texture1: { value: new THREE.TextureLoader().load(img) },
@@ -183,6 +201,8 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return;
     this.time += 0.05;
+    this.getSpeed();
+    this.material.uniforms.speed.value = this.targetSpeed;
     this.material.uniforms.time.value = this.time;
     // this.material.uniforms.progress.value = this.settings.progress;
     // this.material.uniforms.texture.value = this.texture;
